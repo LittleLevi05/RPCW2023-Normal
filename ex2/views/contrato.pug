@@ -1,0 +1,37 @@
+extends layout
+
+block content
+  .w3-card-4
+    header.w3-container.w3-teal
+      h1 Contrato
+    .w3-container
+        h3 ID: #{contrato._id}
+        h2 NomeInstituicao: #{contrato.NomeInstituicao}
+        h3 NIPCInstituicao: #{contrato.NIPCInstituicao}
+        h3 NomeTitularContrato: #{contrato.NomeTitularContrato}
+        h3 CienciaID: #{contrato.CienciaID}
+        h3 ORCID: #{contrato.ORCID},
+        h3 CienciaVitae: #{contrato.CienciaVitae}
+        h3 Carreira_RPN: #{contrato.Carreira_RPN}
+        h3 Categoria_RPN: #{contrato.Categoria_RPN}
+        h3 Vinculo_RPN: #{contrato.Vinculo_RPN}
+        h3 RegimePrestacaoServico: #{contrato.RegimePrestacaoServico}
+        h3 DataInicioContrato: #{contrato.DataInicioContrato}
+        h3 DataFimContrato: #{contrato.DataFimContrato}
+        h3 ETIremunerado: #{contrato.ETIremunerado}
+        h3 ProcedimentoVinculacao: #{contrato.ProcedimentoVinculado}
+        h3 AreasInvestigacao: #{contrato.AreasInvestigacao}
+        h3 NivelFormação: #{contrato.NivelFormacao}
+        h3 InstituicaoEnsino: #{contrato.InstituicaoEnsino}
+        h3 PaisInstituição: #{contrato.PaisInstituicao}
+        h3 AnoDiploma: #{contrato.AnoDiploma}
+        h3 Curso: #{contrato.curso}
+        h3 AreaCNAEF: #{contrato.AreaCNAEF}
+        h3 AreaFORD: #{contrato.AreaFORD}
+        h3 ProvasAgregacao: #{contrato.ProvasAgregacao}
+        h3 TituloEspecialista: #{contrato.TituloEspecialista}
+        h3 ProvasCoordenacao: #{contrato.ProvasCoordenacao}
+        h3 ProvasAptidao: #{contrato.ProvasAptidao}
+              
+    footer.w3-container.w3-teal
+      h5 Criado por Henrique em #{d} - #[a(href="/") Retornar a página principal]

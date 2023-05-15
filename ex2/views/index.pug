@@ -1,0 +1,26 @@
+extends layout
+
+block content
+  .w3-card-4
+    header.w3-container.w3-teal
+      h1 Contratos
+    .w3-container
+      table.w3-table-all
+        tr
+          th Id
+          th DataInicioContrato
+          th DataFimContrato
+          th NomeInstituicao 
+          th AreasInvestigacao
+        
+        each contrato in contratos
+          tr
+            td #[a.w3-btn.w3-round.w3-grey(href="/" + contrato._id) #{contrato._id}]
+            td #{contrato.DataInicioContrato}
+            td= contrato.DataFimContrato 
+            td #[a.w3-btn.w3-round.w3-grey(href="/inst/" + contrato.NIPCInstituicao) #{contrato.NomeInstituicao}] 
+            td #{contrato.AreasInvestigacao} 
+              
+    footer.w3-container.w3-teal
+      h5 Criado por Henrique em #{d} - #[a(href="/") Retornar a página principal]
+    

@@ -1,0 +1,122 @@
+1.1 SETUP
+
+Passos:
+    1. Download do ficheiro JSON da base de dados
+    2. Execução do script convertData.js para converter a string dos campos "DataInicioContrato" e "DataFimContrato" para um formato correto de uma string do tipo Date.
+        Para executar o script basta fazer:
+                $ npm install
+                $ node convertData.js 
+        Certifique-se que o ficheiro JSON a ser convertido encontra-se na mesma diretoria do script. 
+        O resultado do script será utilizado para popular a base de dados.
+    3. Execução do comando: mongoimport -d scienceJobs -c contracts --file .\empregoCientificoFormatado.json --jsonArray
+    4. Testar se a importação correu bem:
+        $ mongosh
+        $ show dbs
+        $ use scienceJobs
+        $ db.contracts.find() // resposta tem de conter a lista de contratos
+
+1.2 QUERIES
+
+O primeiro passo para realizar as queries é entrar no mongosh e executar o comando "use scienceJobs".
+
+    1. Query que retorna quantos contratos estão na base de dados:
+        
+            $ db.contracts.count()
+            resultado: 17943
+
+    2. Query que retorna quantos contratos foram realizados pela Universidade do Minho:
+        
+            $ db.contracts.find({InstituicaoEnsino:"Universidade do Minho"}).count()
+            resultado: 1399
+
+    3. Query que retorna a lista das áreas das pessoas contratadas (ordenada alfabeticamente e sem repetições) (AreaCNAEF)
+    Decisão: foi escolhida a query "distinct" por realizar tanto a exclusão das repetições como automaticamente a ordenação alfabética
+
+            $ db.contracts.distinct('AreaCNAEF')
+
+    4. Query que retorna a distribuição por ano dos contratos (quantos contratos em cada ano)
+        Decisão: foi considerada a agreagação com base no campo DataInicioContrato
+        Explicação query: addFields acrescenta novo campo, que nesse caso será igual ao já existente (DataInicioContrato), e atribui a este campo o valor
+        já existente de DataInicioContrato convertido no tipo Date. Como foi realizado o script na fase de setup, a string presente em DataInicioContrato
+        já se encontra num formato que possibilitar a conversão para data!
+
+            $ db.contracts.aggregate([
+                {
+                        $addFields: {
+                                DataInicioContrato: {
+                                        $toDate: "$DataInicioContrato"
+                                }
+                        }
+                },
+                {
+                        $group: {
+                                _id: {
+                                        $year: "$DataInicioContrato"
+                                },
+                                count: {
+                                        $sum: 1
+                                }
+                        }
+                }
+              ])
+        
+              Resultado:[
+                { _id: 2019, count: 5832 },
+                { _id: 2021, count: 2465 },
+                { _id: 2017, count: 1310 },
+                { _id: 2020, count: 6293 },
+                { _id: 2018, count: 2042 }
+             ]
+
+    5. Query que retorna a distribuição dos contratos por instituição (considerando o campo "NomeInstituição")
+        
+            db.contracts.aggregate([ { $group: { _id: "$NomeInstituicao", count: { $sum: 1 } } }])
+
+1.3 API de Dados
+
+        Para a execução da API de dados basta executar os seguintes comandos:
+
+                $ cd ex1 
+                $ npm install
+                $ npm start
+
+        Arquitetura: foi considerada a arquitetura de uma aplicação node gerada através do comando:
+                
+                $ npx express-generator
+
+        Ficheiros:
+                controllers/api.js: contém todas as funções necessárias para intermedias as rotas com a base de dados 
+                models/contrato.js: contém o Schema do Mongoose para a collection contratos
+                routes/api.js: contém todas as rotas disponibilizadas pela API
+
+2 Interface 
+
+Para a execução da Interface basta executar os seguintes comandos:
+
+        $ cd ex2
+        $ npm install
+        $ npm start
+
+3 EXTRA - Decisões tomadas:
+
+        1. Para os id's dos contratos foi considerado o id gerado automaticamente pelo Mongo.
+        Isto porque, ao permitir a API gere os ID's, tornamos a API autónoma e independente de qualquer 
+        outro serviço. 
+
+        2. Para a rota:
+                GET /contracts?inst=AAA: devolve a lista dos contratos realizados pela instituição contratante AAA
+           foi considerado o campo "NIPC" para identificação da insituição contratante AAA
+
+        3. Para a rota:
+                GET /contracts?year=YYYY: devolve a lista dos contratos realizados durante o ano YYYY
+           foi considerado apenas os contratos com o campo DataInicioContrato no ano solicitado
+
+        4. Para a rota:
+                GET /contracts/institutions: devolve a lista das instituições contratantes (sem repetições)
+           foi considerado o campo "NomeInstituicao" para a query "distinct". Deste modo podemos obter a lista 
+           direta dos nomes das instuições com exclusão de repetições e ordenadas alfabeticamente
+
+        5. Para a rota:
+                GET /contracts/courses: devolve a lista dos cursos dos contratados (sem repetições)
+           foi considerado o nome dos cursos (campo "Curso") na query distinct de modo a obter lista  direta dos nomes 
+           das cursos com exclusão de repetições e ordenados alfabeticamente
